@@ -1,68 +1,51 @@
 name: Build QSLcraft Executables
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Enter the version (e.g., v1.0.0)"
+        required: true
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
-        os: ['windows-latest', 'ubuntu-latest', 'macos-latest']
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
-    env:
-      MAIN_PY_FILE: 'QSLcraft.py'  
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.10.x
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
 
-    - name: Install Python dependencies
-      run: |
-        pip install -r requirements.txt
-      working-directory: ./
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-    - name: Install PyInstaller
-      run: |
-        pip install pyinstaller
-      working-directory: ./
+      - name: Build executable
+        run:  pyinstaller --windowed  --add-data fonts:fonts QSLcraft.py  
 
-    - name: Build executable
-      run: |
-        pyinstaller --windowed ${{ env.MAIN_PY_FILE }}
-      working-directory: ./
+      - name: Rename executable
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            mv dist/QSLcraft.exe dist/QSLcraft-windows.exe
+          elif [[ "$RUNNER_OS" == "Linux" ]]; then
+            mv dist/QSLcraft dist/QSLcraft-linux
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            mv dist/QSLcraft dist/QSLcraft-macos
+          fi
+        shell: bash
 
-    - name: Create Artifact (Windows)
-      if: matrix.os == 'windows-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: QSLcraft-windows
-        path: dist/
-
-    - name: Create Artifact (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: QSLcraft-linux
-        path: dist/
-      
-    - name: Upload Artifact (macOS)
-      if: matrix.os == 'macos-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: QSLcraft-macos
-        path: dist/
-
-    - name: List files in dist folder
-      run: ls -R ./dist/
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QSLcraft-${{ matrix.os }}
+          path: dist/*
 
   release:
     needs: build
@@ -91,6 +74,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            QSLcraft
-            QSLcraft.exe
-            QSLcraft.app
+            QSLcraft-linux
+            QSLcraft-windows.exe
+            QSLcraft-macos
