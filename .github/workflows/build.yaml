@@ -91,6 +91,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            QSLcraft-linux.zip
-            QSLcraft-windows.zip
-            QSLcraft-macos.zip
+            QSLcraft
+            QSLcraft.exe
+            QSLcraft.app
