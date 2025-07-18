@@ -31,7 +31,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Build executable
-        run:  pyinstaller --windowed  --add-data fonts:fonts QSLcraft.py  
+        run:  pyinstaller --windowed -F  --add-data fonts:fonts QSLcraft.py  
 
       - name: Rename executable
         run: |
@@ -67,7 +67,7 @@ jobs:
         run: ls -R
 
       - name: Make files executable (Linux/Mac)
-        run: chmod +x app-* || true
+        run: chmod +x QSLcraft* || true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -78,5 +78,5 @@ jobs:
           prerelease: false
           files: |
             QSLcraft-linux
-            QSLcraft.exe
+            QSLcraft/QSLcraft.exe
             QSLcraft-macos
