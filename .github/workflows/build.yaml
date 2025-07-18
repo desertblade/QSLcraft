@@ -64,7 +64,7 @@ jobs:
     - name: List files in dist folder
       run: ls -R ./dist/
 
-release:
+  release:
     needs: build
     runs-on: ubuntu-latest
 
