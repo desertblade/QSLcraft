@@ -2,9 +2,9 @@ name: Build QSLcraft Executables
 
 on:
   push:
-    branches:
-      - main
-
+    tags:
+      - "v*.*.*"
+      
 jobs:
   build:
     runs-on: ${{ matrix.os }}
